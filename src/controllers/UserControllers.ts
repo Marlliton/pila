@@ -1,23 +1,30 @@
+import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
-import { prisma, PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 class UserController {
   prisma: PrismaClient;
   constructor() {
     this.prisma = new PrismaClient();
   }
+  
   findAll = async (req: Request, res: Response) => {
     const users = await this.prisma.user.findMany();
-    return users ? res.status(200).json(users) : res.status(204).send();
+    if (!users) return res.status(204).send();
+    const userList = [...users];
+    userList.map((user: any) => (user.password = undefined));
+    return res.status(200).json(userList);
   };
 
   findOne = async (req: Request, res: Response) => {
     const { userId } = req.params;
-    if (!userId) return res.status(400).json({ error: "Id field is missing" });
 
     const user = await this.getUserById(+userId);
+    if (!user) return res.status(204).send();
+    const newUser: any = { ...user };
+    newUser.password = undefined;
 
-    return user ? res.status(200).json(user) : res.status(204).send();
+    return res.status(200).json(newUser);
   };
 
   create = async (req: Request, res: Response) => {
@@ -29,24 +36,32 @@ class UserController {
 
     if (hasUser) return res.status(403).json({ error: "User already exist" });
 
+    const encryptedPass = bcrypt.hashSync(password, 8);
     const user = await this.prisma.user.create({
       data: {
         name,
         email,
-        password,
+        password: encryptedPass,
       },
     });
-    return res.status(201).json(user);
+
+    const newUser: any = { ...user };
+    newUser.password = undefined;
+
+    return res.status(201).json(newUser);
   };
 
   update = async (req: Request, res: Response) => {
     const { userId } = req.params;
     const { name, email } = req.body;
 
+    if (!name || !email)
+      return res.status(403).json({ error: "Fill in all fields" });
+
     const hasUser = await this.getUserById(+userId);
     if (!hasUser) return res.status(204).send();
 
-    const newUser = await this.prisma.user.update({
+    const user = await this.prisma.user.update({
       where: {
         id: +userId,
       },
@@ -56,7 +71,9 @@ class UserController {
       },
     });
 
-    return res.status(200).json(newUser);
+    user && (user.password = "undefined");
+
+    return res.status(200).json(user);
   };
 
   destroy = async (req: Request, res: Response) => {
@@ -70,12 +87,11 @@ class UserController {
       },
     });
 
-    return res
-      .status(200)
-      .json({ user: { id: user.id, name: user.name, email: user.email } });
+    user && (user.password = "undefined");
+    return res.status(200).json(user);
   };
 
-  private getUserByUniqueEmail = async (email: string) => {
+  getUserByUniqueEmail = async (email: string) => {
     const user = await this.prisma.user.findUnique({
       where: {
         email,

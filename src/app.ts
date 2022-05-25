@@ -1,12 +1,10 @@
 import "dotenv/config";
 import express, { json, Request, Response } from "express";
-import userRouter from "./routers/userRouters";
-import accountsRouter from "./routers/accountsRouters";
+import router from "./routers/index";
 
 const app = express();
 app.use(json());
-userRouter(app);
-accountsRouter(app);
+app.use(router);
 
 app.get("/", (req: Request, res: Response) => {
   return res.status(200).send();

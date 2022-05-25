@@ -1,10 +1,12 @@
-import express, { Router } from "express";
+import { Router } from "express";
 import AccountController from "../controllers/AccountControllers";
 
-const router = Router();
+const accountRouter = Router();
 
-router.get("/", AccountController.findAll);
-router.get("/:accountId", AccountController.findOne);
-router.post("/", AccountController.createAccount);
+accountRouter.get("/", AccountController.findAll);
+accountRouter.get("/:accountId", AccountController.findOne);
+accountRouter.post("/", AccountController.createAccount);
+accountRouter.put("/:accountId", AccountController.update);
+accountRouter.delete("/:accountId", AccountController.destroy);
 
-export default (app: express.Application) => app.use("/accounts", router);
+export default accountRouter;
