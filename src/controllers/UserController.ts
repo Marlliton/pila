@@ -1,13 +1,8 @@
-import { PrismaClient, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { Request, Response } from "express";
 import { getUserService } from "../models";
 
 class UserController {
-  prisma: PrismaClient;
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
-
   findAll = async (req: Request, res: Response) => {
     try {
       const users = await getUserService().findAll();

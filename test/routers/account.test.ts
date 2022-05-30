@@ -26,7 +26,7 @@ describe("Should test account routes", () => {
   test("Should receive status code 403 if no send data", async () => {
     const result = await request.post("/accounts").send({
       name: "Account insert",
-    });
+    }); 
 
     expect(result.statusCode).toEqual(403);
   });
