@@ -15,6 +15,11 @@ export default class UserService implements UserRepository {
   findOne(userId: number): Promise<User> {
     return this.#repository.findOne(userId);
   }
+
+  findByEmail(email: string): Promise<User> {
+    return this.#repository.findByEmail(email);
+  }
+
   create(user: User): Promise<User> {
     return this.#repository.create(user);
   }

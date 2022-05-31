@@ -33,6 +33,16 @@ export default class UserPrisma implements UserRepository {
     return user!;
   }
 
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.#prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    return user!;
+  }
+
   async create({ name, email, password }: User): Promise<User> {
     const encryptedPass = bcrypt.hashSync(password, 8);
 
