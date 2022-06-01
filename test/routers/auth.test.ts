@@ -5,7 +5,7 @@ const request = supertest(app);
 describe("Testa a rota de autenticação", () => {
   test("Deve receber o token de autenticação", async () => {
     const mail = `${Date.now()}.gmail.com`;
-    await request.post("/users").send({
+    await request.post("/auth/signup").send({
       name: "Usuário autenticado",
       email: mail,
       password: "134",
@@ -21,7 +21,7 @@ describe("Testa a rota de autenticação", () => {
 
   test("Não deve autenticar usuário com senha errada", async () => {
     const mail = `${Date.now()}.gmail.com`;
-    await request.post("/users").send({
+    await request.post("/auth/signup").send({
       name: "Usuário autenticado",
       email: mail,
       password: "134",
@@ -41,5 +41,27 @@ describe("Testa a rota de autenticação", () => {
       password: "134",
     });
     expect(result.statusCode).toEqual(204);
+  });
+
+  test("Deve listar todos os usuários somente se autenticado", async () => {
+    const mail = `${Date.now()}.gmail.com`;
+    await request.post("/auth/signup").send({
+      name: "Usuário autenticado",
+      email: mail,
+      password: "134",
+    });
+
+    const responseToken = await request.post("/auth/signing").send({
+      email: mail,
+      password: "134",
+    });
+    expect(responseToken.statusCode).toEqual(200);
+    expect(responseToken.body).toHaveProperty("token");
+
+    const result = await request.get("/users").set({
+      authorization: `Bearer ${responseToken.body.token}`,
+    });
+    expect(result.statusCode).toEqual(200);
+    expect(result.body.length).toBeGreaterThan(0)
   });
 });

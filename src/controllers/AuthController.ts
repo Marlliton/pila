@@ -1,6 +1,7 @@
-import jwt from "jsonwebtoken";
+import { User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import { getUserService } from "../models";
 
 class AuthController {
@@ -22,9 +23,34 @@ class AuthController {
       };
 
       const token = jwt.sign(payload, process.env.SECRET_KEY!, {
-        expiresIn: 60 * 60 * 8 // 8 hours
+        expiresIn: 60 * 60 * 8, // 8 hours
       });
       res.status(200).json({ token });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  signup = async (req: Request, res: Response) => {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password)
+      return res.status(403).json({ error: "Fill in all fields" });
+
+    try {
+      const hasUser = await getUserService().verifyUserExists(email);
+      if (hasUser) return res.status(403).json({ error: "User already exist" });
+
+      const user = await getUserService().create({
+        email,
+        name,
+        password,
+      } as User);
+
+      const userWithoutPass: any = { ...user };
+      userWithoutPass.password = undefined;
+
+      return res.status(201).json(userWithoutPass);
     } catch (error) {
       console.log(error);
     }

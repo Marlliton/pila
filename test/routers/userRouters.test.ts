@@ -46,9 +46,9 @@ describe("Deve testar as rotas de usuário", () => {
     });
 
     expect(result.statusCode).toEqual(201);
-    // expect(result.body).toHaveProperty("name", "Testes Unitários");
-    // expect(result.body).toHaveProperty("email", userEmail);
-    // expect(result.body).not.toHaveProperty("password");
+    expect(result.body).toHaveProperty("name", "Testes Unitários");
+    expect(result.body).toHaveProperty("email", userEmail);
+    expect(result.body).not.toHaveProperty("password");
   });
 
   test("Deve receber um 404 ao tentar criar um usuário já existente", async () => {
