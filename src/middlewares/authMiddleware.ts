@@ -20,10 +20,10 @@ function validateToken(req: Request, res: Response, next: NextFunction) {
   jwt.verify(token, process.env.SECRET_KEY!, (err, decode) => {
     if (err) return res.status(401).json({ error: "Token invalid" });
 
+    req.params.userId = (decode as TokenProps).id;
     req.body = {
-      id: (decode as TokenProps).id,
-      name: (decode as TokenProps).name,
-      email: (decode as TokenProps).email,
+      userId: (decode as TokenProps).id,
+      ...req.body,
     };
     return next();
   });

@@ -13,10 +13,10 @@ export default class AccountPrisma implements AccountRepository {
     return accounts;
   }
 
-  async findOne(accountId: number): Promise<Accounts> {
+  async findOne(userId: number): Promise<Accounts> {
     const account = await this.#prisma.accounts.findUnique({
       where: {
-        id: accountId,
+        userId,
       },
     });
     return account!;
@@ -32,13 +32,10 @@ export default class AccountPrisma implements AccountRepository {
     return account;
   }
 
-  async update(
-    accountId: number,
-    { name, userId }: Accounts
-  ): Promise<Accounts> {
+  async update({ name, userId }: Accounts): Promise<Accounts> {
     const updatedAccount = await this.#prisma.accounts.update({
       where: {
-        id: accountId,
+        userId,
       },
       data: {
         name,
@@ -48,10 +45,10 @@ export default class AccountPrisma implements AccountRepository {
     return updatedAccount;
   }
 
-  async destroy(accountId: number): Promise<Accounts> {
+  async destroy(userId: number): Promise<Accounts> {
     const account = await this.#prisma.accounts.delete({
       where: {
-        id: accountId,
+        userId,
       },
     });
     return account;

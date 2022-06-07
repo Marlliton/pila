@@ -5,8 +5,8 @@ export default class UserService implements UserRepository {
   constructor(repo: UserRepository) {
     this.#repository = repo;
   }
-  verifyUserExists(email: string): Promise<boolean> {
-    return this.#repository.verifyUserExists(email);
+  verifyUserExists(userId: number): Promise<boolean> {
+    return this.#repository.verifyUserExists(userId);
   }
 
   findAll(): Promise<User[]> {

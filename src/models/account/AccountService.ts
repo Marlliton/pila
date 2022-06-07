@@ -9,14 +9,14 @@ export default class AccountService implements AccountRepository {
   findAll(): Promise<Accounts[]> {
     return this.#repository.findAll();
   }
-  findOne(accountId: number): Promise<Accounts> {
-    return this.#repository.findOne(accountId);
+  findOne(userId: number): Promise<Accounts> {
+    return this.#repository.findOne(userId);
   }
   create(account: Accounts): Promise<Accounts> {
     return this.#repository.create(account);
   }
-  update(accountId: number, account: Accounts): Promise<Accounts> {
-    return this.#repository.update(accountId, account);
+  update(account: Accounts): Promise<Accounts> {
+    return this.#repository.update(account);
   }
   destroy(accountId: number): Promise<Accounts> {
     return this.#repository.destroy(accountId);

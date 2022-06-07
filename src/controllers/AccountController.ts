@@ -14,9 +14,10 @@ class AccountController {
   };
 
   findOne = async (req: Request, res: Response) => {
-    const { accountId } = req.params;
+    const { userId } = req.params;
+
     try {
-      const account = await getAccountService().findOne(+accountId);
+      const account = await getAccountService().findOne(+userId);
       if (!account) return res.status(204).send();
       res.status(200).json(account);
     } catch (error) {
@@ -43,37 +44,38 @@ class AccountController {
   };
 
   update = async (req: Request, res: Response) => {
-    const { accountId } = req.params;
     const { name, userId } = req.body;
 
     if (!name || !userId)
       return res.status(403).json({ error: "Fill in all fields" });
 
     try {
-      const hasAccount = await getAccountService().findOne(+accountId);
+      const hasAccount = await getAccountService().findOne(+userId);
       if (!hasAccount) return res.status(204).send();
 
-      const account = await getAccountService().update(+accountId, {
+      const account = await getAccountService().update({
         name,
         userId,
       } as Accounts);
 
-      res.status(200).json(account);
+      return res.status(200).json(account);
     } catch (error) {
       console.log(error);
     }
   };
 
   destroy = async (req: Request, res: Response) => {
-    const { accountId } = req.params;
+    const { userId } = req.body;
 
     try {
-      const hasAccount = await getAccountService().findOne(+accountId);
+      const hasAccount = await getAccountService().findOne(+userId);
       if (!hasAccount) return res.status(204).send();
 
-      const account = await getAccountService().destroy(+accountId);
-      res.status(200).json(account);
-    } catch (error) {}
+      const account = await getAccountService().destroy(+userId);
+      return res.status(200).json(account);
+    } catch (error) {
+      console.log(error);
+    }
   };
 }
 

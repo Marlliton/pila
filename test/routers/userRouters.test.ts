@@ -1,116 +1,74 @@
+import { User } from "@prisma/client";
 import supertest from "supertest";
 import app from "../../src/app";
+import { getUserService } from "../../src/models";
 
 const request = supertest(app);
-const userEmail = `${Date.now()}@test.test.com`;
-let firstUser: any = {};
-
-beforeAll(async () => {
-  const response = await request.post("/users").send({
-    name: "First User",
-    email: `first_user.${userEmail}`,
-    password: "1234",
-  });
-  firstUser = { ...response.body };
-});
 
 describe("Deve testar as rotas de usuário", () => {
-  test("Deve pegar todos os usuários no banco", async () => {
-    const result = await request.get("/users");
-    expect(result.statusCode).toEqual(200);
-    expect(result.body.length).toBeGreaterThan(0);
+  it("Deve consultar o usuário logado", async () => {
+    const userDb = await getUserService().create({
+      name: "marlliton",
+      email: `${Date.now()}@gmail.com`,
+      password: "123",
+    } as User);
+
+    const token = await request.post("/auth/signing").send({
+      email: userDb.email,
+      password: "123",
+    });
+
+    const user = await request.get(`/users/${userDb.id}`).set({
+      authorization: `Bearer ${token.body.token}`,
+    });
+
+    expect(user.body).toHaveProperty("id", userDb.id);
   });
 
-  test("Deve buscar apenas um usuário no banco", async () => {
-    const testGet = await request.post("/users").send({
-      name: "Teste Get",
-      email: `get${Date.now()}@test.test`,
-      password: "1234",
+  it("Deve atualizar o usuário logado", async () => {
+    const userDb = await getUserService().create({
+      name: "marlliton",
+      email: `${Date.now()}@gmail.com`,
+      password: "123",
+    } as User);
+
+    const token = await request.post("/auth/signing").send({
+      email: userDb.email,
+      password: "123",
     });
 
-    const result = await request.get(`/users/${testGet.body?.id}`);
-    expect(result.statusCode).toEqual(200);
-    expect(result.body).toHaveProperty("name", "Teste Get");
+    const updatedEmail = `marlliton@${Date.now()}mail.com`;
+    const user = await request
+      .put(`/users/${userDb.id}`)
+      .set({
+        authorization: `Bearer ${token.body.token}`,
+      })
+      .send({
+        name: "Marlliton Souza",
+        email: updatedEmail,
+      });
+
+    console.log(user.body);
+    expect(user.body).toHaveProperty("email", updatedEmail);
   });
 
-  test("Deve buscar o usuário inexistente no banco e o status tem que ser 204", async () => {
-    const result = await request.get("/users/0");
-    expect(result.statusCode).toEqual(204);
-  });
+  it("Deve excluir um usurário", async () => {
+    const userDb = await getUserService().create({
+      name: "marlliton",
+      email: `${Date.now()}@gmail.com`,
+      password: "123",
+    } as User);
 
-  test("Deve criar um usuário", async () => {
-    const result = await request.post("/users").send({
-      name: "Testes Unitários",
-      email: userEmail,
-      password: "1234",
+    const token = await request.post("/auth/signing").send({
+      email: userDb.email,
+      password: "123",
     });
 
-    expect(result.statusCode).toEqual(201);
-    expect(result.body).toHaveProperty("name", "Testes Unitários");
-    expect(result.body).toHaveProperty("email", userEmail);
-    expect(result.body).not.toHaveProperty("password");
-  });
-
-  test("Deve receber um 404 ao tentar criar um usuário já existente", async () => {
-    const result = await request.post("/users").send({
-      name: "marlliton souza",
-      email: userEmail,
-      password: "1234",
+    const response = await request.delete(`/users/${userDb.id}`).set({
+      authorization: `Bearer ${token.body.token}`,
     });
 
-    expect(result.statusCode).toEqual(403);
-    expect(result.body).toHaveProperty("error", "User already exist");
-  });
-
-  test("Deve receber um 404 ao tentar criar um usuário com dados nulos", async () => {
-    const result = await request.post("/users").send({
-      email: "souza@testej.dev.",
-    });
-
-    expect(result.statusCode).toEqual(403);
-    expect(result.body).toHaveProperty("error", "Fill in all fields");
-  });
-
-  test("Deve atualizar o usuário", async () => {
-    const testUpdate = await request.post("/users").send({
-      name: "Teste Get",
-      email: `get${Date.now()}@test.test`,
-      password: "1234",
-    });
-
-    const result = await request.put(`/users/${testUpdate.body?.id}`).send({
-      name: "Ana Maria",
-      email: testUpdate.body?.email,
-    });
-
-    expect(result.statusCode).toEqual(200);
-    expect(result.body).toHaveProperty("name", "Ana Maria");
-    expect(result.body).toHaveProperty("email", testUpdate.body?.email);
-  });
-
-  test("Deve receber 403 ao tentar atualizar com dados nulos", async () => {
-    const testUpdate = await request.post("/users").send({
-      name: "Teste update null data",
-      email: `get${Date.now()}@test.test`,
-      password: "1234",
-    });
-
-    const result = await request.put(`/users/${testUpdate.body?.id}`).send({
-      name: "Outro",
-    });
-
-    expect(result.statusCode).toEqual(403);
-  });
-
-  test("Deve deletar um usuário", async () => {
-    const user = await request.post("/users").send({
-      name: "Delete test",
-      email: `Delete${userEmail}`,
-      password: "1234",
-    });
-
-    const result = await request.delete(`/users/${user.body?.id}`);
-
-    expect(result.statusCode).toEqual(200);
+    expect(response.statusCode).toEqual(200);
+    expect(response.body).toHaveProperty("email", userDb.email);
   });
 });

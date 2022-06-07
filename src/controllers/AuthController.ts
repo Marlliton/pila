@@ -35,11 +35,12 @@ class AuthController {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password)
-      return res.status(403).json({ error: "Fill in all fields" });
+      return res.status(400).json({ error: "Fill in all fields" });
 
     try {
-      const hasUser = await getUserService().verifyUserExists(email);
-      if (hasUser) return res.status(403).json({ error: "User already exist" });
+      const hasUser = await getUserService().findByEmail(email);
+      
+      if (hasUser) return res.status(400).json({ error: "User already exist" });
 
       const user = await getUserService().create({
         email,

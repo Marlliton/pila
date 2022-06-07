@@ -43,7 +43,7 @@ describe("Testa a rota de autenticação", () => {
     expect(result.statusCode).toEqual(204);
   });
 
-  test("Deve listar todos os usuários somente se autenticado", async () => {
+  test.skip("Deve listar todos os usuários somente se autenticado", async () => {
     const mail = `${Date.now()}.gmail.com`;
     await request.post("/auth/signup").send({
       name: "Usuário autenticado",

@@ -8,13 +8,13 @@ export default class UserPrisma implements UserRepository {
   constructor() {
     this.#prisma = prisma;
   }
-  async verifyUserExists(email: string): Promise<boolean> {
+  async verifyUserExists(userId: number): Promise<boolean> {
     const user = await this.#prisma.user.findUnique({
       where: {
-        email,
+        id: userId,
       },
     });
-
+    
     return user ? true : false;
   }
 

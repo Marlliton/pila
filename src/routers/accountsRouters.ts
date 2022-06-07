@@ -1,7 +1,10 @@
 import { Router } from "express";
 import AccountController from "../controllers/AccountController";
+import validateToken from "../middlewares/authMiddleware";
 
 const accountRouter = Router();
+
+accountRouter.use(validateToken);
 
 accountRouter.get("/", AccountController.findAll);
 accountRouter.get("/:accountId", AccountController.findOne);
