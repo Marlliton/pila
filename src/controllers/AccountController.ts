@@ -1,18 +1,9 @@
-import { Accounts, PrismaClient } from "@prisma/client";
+import { Account, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { getAccountService } from "../models";
 
 class AccountController {
-  findAll = async (req: Request, res: Response) => {
-    try {
-      const list = await getAccountService().findAll();
-
-      return res.status(200).json(list);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
+  
   findOne = async (req: Request, res: Response) => {
     const { userId } = req.params;
 
@@ -26,16 +17,16 @@ class AccountController {
   };
 
   createAccount = async (req: Request, res: Response) => {
-    const { name, userId } = req.body;
+    const { total, userId } = req.body;
 
-    if (!name || !userId)
+    if (!total || !userId)
       return res.status(403).json({ error: "Fill in all fields" });
 
     try {
       const account = await getAccountService().create({
-        name,
-        userId,
-      } as Accounts);
+        total,
+        userId
+      } as Account);
 
       res.status(201).json(account);
     } catch (error) {
@@ -44,9 +35,9 @@ class AccountController {
   };
 
   update = async (req: Request, res: Response) => {
-    const { name, userId } = req.body;
+    const { total, userId } = req.body;
 
-    if (!name || !userId)
+    if (!total || !userId)
       return res.status(403).json({ error: "Fill in all fields" });
 
     try {
@@ -54,9 +45,9 @@ class AccountController {
       if (!hasAccount) return res.status(204).send();
 
       const account = await getAccountService().update({
-        name,
+        total,
         userId,
-      } as Accounts);
+      } as Account);
 
       return res.status(200).json(account);
     } catch (error) {

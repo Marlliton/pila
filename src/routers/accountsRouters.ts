@@ -6,7 +6,6 @@ const accountRouter = Router();
 
 accountRouter.use(validateToken);
 
-accountRouter.get("/", AccountController.findAll);
 accountRouter.get("/:accountId", AccountController.findOne);
 accountRouter.post("/", AccountController.createAccount);
 accountRouter.put("/:accountId", AccountController.update);

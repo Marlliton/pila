@@ -1,4 +1,4 @@
-import { Accounts } from "@prisma/client";
+import { Account } from "@prisma/client";
 import { AccountRepository } from "./AccountRepository";
 
 export default class AccountService implements AccountRepository {
@@ -6,19 +6,16 @@ export default class AccountService implements AccountRepository {
   constructor(repo: AccountRepository) {
     this.#repository = repo;
   }
-  findAll(): Promise<Accounts[]> {
-    return this.#repository.findAll();
-  }
-  findOne(userId: number): Promise<Accounts> {
+  findOne(userId: number): Promise<Account> {
     return this.#repository.findOne(userId);
   }
-  create(account: Accounts): Promise<Accounts> {
+  create(account: Account): Promise<Account> {
     return this.#repository.create(account);
   }
-  update(account: Accounts): Promise<Accounts> {
+  update(account: Account): Promise<Account> {
     return this.#repository.update(account);
   }
-  destroy(accountId: number): Promise<Accounts> {
-    return this.#repository.destroy(accountId);
+  destroy(userId: number): Promise<Account> {
+    return this.#repository.destroy(userId);
   }
 }

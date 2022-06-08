@@ -1,4 +1,4 @@
-import { Accounts, PrismaClient } from "@prisma/client";
+import { Account, PrismaClient } from "@prisma/client";
 import { AccountRepository } from "../../models/account/AccountRepository";
 import { prisma } from "../../../prisma";
 
@@ -8,13 +8,13 @@ export default class AccountPrisma implements AccountRepository {
     this.#prisma = prisma;
   }
 
-  async findAll(): Promise<Accounts[]> {
-    const accounts = await this.#prisma.accounts.findMany();
-    return accounts;
+  async findAll(): Promise<Account[]> {
+    const account = await this.#prisma.account.findMany();
+    return account;
   }
 
-  async findOne(userId: number): Promise<Accounts> {
-    const account = await this.#prisma.accounts.findUnique({
+  async findOne(userId: number): Promise<Account> {
+    const account = await this.#prisma.account.findUnique({
       where: {
         userId,
       },
@@ -22,31 +22,31 @@ export default class AccountPrisma implements AccountRepository {
     return account!;
   }
 
-  async create({ name, userId }: Accounts): Promise<Accounts> {
-    const account = await this.#prisma.accounts.create({
+  async create({ total, userId }: Account): Promise<Account> {
+    const account = await this.#prisma.account.create({
       data: {
-        name,
+        total,
         userId,
       },
     });
     return account;
   }
 
-  async update({ name, userId }: Accounts): Promise<Accounts> {
-    const updatedAccount = await this.#prisma.accounts.update({
+  async update({ total, userId }: Account): Promise<Account> {
+    const updatedAccount = await this.#prisma.account.update({
       where: {
         userId,
       },
       data: {
-        name,
+        total,
         userId,
       },
     });
     return updatedAccount;
   }
 
-  async destroy(userId: number): Promise<Accounts> {
-    const account = await this.#prisma.accounts.delete({
+  async destroy(userId: number): Promise<Account> {
+    const account = await this.#prisma.account.delete({
       where: {
         userId,
       },

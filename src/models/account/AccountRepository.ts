@@ -1,9 +1,8 @@
-import { Accounts } from "@prisma/client";
+import { Account } from "@prisma/client";
 
 export interface AccountRepository {
-  findAll: () => Promise<Accounts[]>;
-  findOne: (userId: number) => Promise<Accounts>;
-  create: ({ name, userId }: Accounts) => Promise<Accounts>;
-  update: ({ name, userId }: Accounts) => Promise<Accounts>;
-  destroy: (accountId: number) => Promise<Accounts>;
+  findOne: (userId: number) => Promise<Account>;
+  create: ({ total, userId }: Account) => Promise<Account>;
+  update: ({ total, userId }: Account) => Promise<Account>;
+  destroy: (userId: number) => Promise<Account>;
 }

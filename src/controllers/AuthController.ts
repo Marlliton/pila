@@ -10,7 +10,7 @@ class AuthController {
     if (!email || !password)
       return res.status(401).json({ message: "there are empty fields" });
     try {
-      const user = await getUserService().findByEmail(email);
+      const user = await getUserService().findOneByEmail(email);
       if (!user) return res.status(204).json({ message: "User not found" });
       const isCorrectPass = bcrypt.compareSync(password, user.password);
       if (!isCorrectPass)
@@ -38,7 +38,7 @@ class AuthController {
       return res.status(400).json({ error: "Fill in all fields" });
 
     try {
-      const hasUser = await getUserService().findByEmail(email);
+      const hasUser = await getUserService().findOneByEmail(email);
       
       if (hasUser) return res.status(400).json({ error: "User already exist" });
 

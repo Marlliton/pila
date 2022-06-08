@@ -8,19 +8,15 @@ export default class UserPrisma implements UserRepository {
   constructor() {
     this.#prisma = prisma;
   }
-  async verifyUserExists(userId: number): Promise<boolean> {
+  
+  async verifyUserExists(email: string): Promise<boolean> {
     const user = await this.#prisma.user.findUnique({
       where: {
-        id: userId,
+        email,
       },
     });
     
     return user ? true : false;
-  }
-
-  async findAll(): Promise<User[]> {
-    const users = await this.#prisma.user.findMany();
-    return users;
   }
 
   async findOne(userId: number): Promise<User> {
@@ -33,7 +29,7 @@ export default class UserPrisma implements UserRepository {
     return user!;
   }
 
-  async findByEmail(email: string): Promise<User> {
+  async findOneByEmail(email: string): Promise<User> {
     const user = await this.#prisma.user.findUnique({
       where: {
         email,

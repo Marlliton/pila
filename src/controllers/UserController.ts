@@ -2,18 +2,8 @@ import { User } from "@prisma/client";
 import { Request, Response } from "express";
 import { getUserService } from "../models";
 
+// TODO verificar se o parâmetro que está vindo é igual a o id do cara logado
 class UserController {
-  // findAll = async (req: Request, res: Response) => {
-  //   try {
-  //     const users = await getUserService().findAll();
-  //     users.map((user: any) => (user.password = undefined));
-
-  //     return users ? res.status(200).json(users) : res.status(204).send();
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   findOne = async (req: Request, res: Response) => {
     const { userId } = req.params;
 
@@ -30,41 +20,16 @@ class UserController {
     }
   };
 
-  // create = async (req: Request, res: Response) => {
-  //   const { name, email, password } = req.body;
-
-  //   if (!name || !email || !password)
-  //     return res.status(403).json({ error: "Fill in all fields" });
-
-  //   try {
-  //     const hasUser = await getUserService().findByEmail(email);
-  //     console.log("🚀 ~ file: UserController.ts ~ line 41 ~ UserController ~ create= ~ hasUser", hasUser)
-      
-  //     if (hasUser) return res.status(403).json({ error: "User already exist" });
-
-  //     const user = await getUserService().create({
-  //       email,
-  //       name,
-  //       password,
-  //     } as User);
-
-  //     return res.status(201).json(user);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   update = async (req: Request, res: Response) => {
-    const { userId } = req.params;
-    const { name, email } = req.body;
-    console.log("🚀 ~ file: UserController.ts ~ line 60 ~ UserController ~ update= ~ req.body", req.body)
-    
+    // TODO params não está com o valor atualizado
+    // const { userId } = req.params;
+    const { name, email, userId } = req.body;
+
     if (!name || !email)
-      return res.status(403).json({ error: "Fill in all fields" });
+      return res.status(401).json({ error: "Fill in all fields" });
 
     try {
-      const hasUser = await getUserService().verifyUserExists(+userId);
-      console.log(hasUser);
+      const hasUser = await getUserService().findOne(+userId);
       if (!hasUser) return res.status(204).send();
       const user = await getUserService().update(+userId, {
         name,
