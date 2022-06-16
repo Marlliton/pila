@@ -4,12 +4,12 @@ import validateToken from "../middlewares/authMiddleware";
 
 const userRouters = Router();
 
-userRouters.use(validateToken);
+// userRouters.use(validateToken);
 
 // userRouters.get("/", UserController.findAll);
-userRouters.get("/:userId", UserController.findOne);
+userRouters.get("/:userId", validateToken ,UserController.findOne);
 // userRouters.post("/", UserController.create);
-userRouters.put("/:userId", UserController.update);
-userRouters.delete("/:userId", UserController.destroy);
+userRouters.put("/:userId", validateToken ,UserController.update);
+userRouters.delete("/:userId", validateToken ,UserController.destroy);
 
 export default userRouters;

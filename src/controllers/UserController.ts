@@ -2,7 +2,6 @@ import { User } from "@prisma/client";
 import { Request, Response } from "express";
 import { getUserService } from "../models";
 
-// TODO verificar se o parâmetro que está vindo é igual a o id do cara logado
 class UserController {
   findOne = async (req: Request, res: Response) => {
     const { userId } = req.params;
@@ -21,9 +20,8 @@ class UserController {
   };
 
   update = async (req: Request, res: Response) => {
-    // TODO params não está com o valor atualizado
-    // const { userId } = req.params;
-    const { name, email, userId } = req.body;
+    const { userId } = req.params;
+    const { name, email } = req.body;
 
     if (!name || !email)
       return res.status(401).json({ error: "Fill in all fields" });
@@ -56,7 +54,7 @@ class UserController {
       const userWithoutPass: any = { ...user };
       userWithoutPass.password = undefined;
 
-      return res.status(200).json(user);
+      return res.status(200).json(userWithoutPass);
     } catch (error) {
       console.log(error);
     }

@@ -19,8 +19,8 @@ function validateToken(req: Request, res: Response, next: NextFunction) {
     if (err) return res.status(401).json({ error: "Token invalid" });
 
     // TODO verificar o motivo do params não está sendo atualizado
-    // req.params.userId = (decode as TokenProps).id;
-  
+    req.params.userId = (decode as TokenProps).id;
+
     req.body = {
       userId: (decode as TokenProps).id,
       ...req.body,

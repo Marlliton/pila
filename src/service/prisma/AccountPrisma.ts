@@ -22,23 +22,23 @@ export default class AccountPrisma implements AccountRepository {
     return account!;
   }
 
-  async create({ total, userId }: Account): Promise<Account> {
+  async create({ name, userId }: Account): Promise<Account> {
     const account = await this.#prisma.account.create({
       data: {
-        total,
+        name,
         userId,
       },
     });
     return account;
   }
 
-  async update({ total, userId }: Account): Promise<Account> {
+  async update({ name, userId }: Account): Promise<Account> {
     const updatedAccount = await this.#prisma.account.update({
       where: {
         userId,
       },
       data: {
-        total,
+        name,
         userId,
       },
     });
