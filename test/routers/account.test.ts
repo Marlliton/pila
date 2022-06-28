@@ -23,17 +23,14 @@ async function createUserAuth() {
 }
 
 async function createAccount(name: string, userId: number) {
-  const response = await getAccountService().create({
-    name,
-    userId,
-  } as Account);
+  const response = await getAccountService().create(name, userId, 0);
 
   return response;
 }
 
 describe("Deve testar rotas de account", () => {
   it("Deve criar uma conta com um usuário vinculado", async () => {
-    const { token } = await createUserAuth();
+    const { user, token } = await createUserAuth();
 
     const response = await request
       .post(`/accounts/`)
@@ -42,8 +39,9 @@ describe("Deve testar rotas de account", () => {
       })
       .send({
         name: "conta de teste",
+        userId: user.id,
+        balance: 0,
       });
-
     expect(response.statusCode).toEqual(201);
     expect(response.body).toHaveProperty("name", "conta de teste");
   });
@@ -56,31 +54,36 @@ describe("Deve testar rotas de account", () => {
       authorization: `Bearer ${token}`,
     });
 
-    console.log(response.body)
     expect(response.statusCode).toEqual(200);
     expect(response.body).toHaveProperty("name", "account default");
   });
 
   it("Deve atualizar a conta do usuário", async () => {
     const { user, token } = await createUserAuth();
-    await createAccount("Conta para atualizar", user.id)
-    const response = await request.put(`/accounts/${user.id}`).set({
-      authorization: `Bearer ${token}`,
-    }).send({
-      name: "conta atualizada"
-    })
+    await createAccount("Conta para atualizar", user.id);
+    const response = await request
+      .put(`/accounts/${user.id}`)
+      .set({
+        authorization: `Bearer ${token}`,
+      })
+      .send({
+        name: "conta atualizada",
+      });
 
     expect(response.statusCode).toEqual(200);
   });
 
   it("Deve apagar a conta do usuário", async () => {
     const { user, token } = await createUserAuth();
-    await createAccount("Conta para apagar", user.id)
-    const response = await request.delete(`/accounts/${user.id}`).set({
-      authorization: `Bearer ${token}`,
-    }).send({
-      name: "conta apagada"
-    })
+    await createAccount("Conta para apagar", user.id);
+    const response = await request
+      .delete(`/accounts/${user.id}`)
+      .set({
+        authorization: `Bearer ${token}`,
+      })
+      .send({
+        name: "conta apagada",
+      });
 
     expect(response.statusCode).toEqual(200);
   });

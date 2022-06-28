@@ -1,6 +1,7 @@
 import { Router } from "express";
 import TransactionController from "../controllers/TransactionController";
 import validateToken from "../middlewares/authMiddleware";
+import { getTransactionService, getUserService } from "../models";
 
 const transactionRouter = Router();
 
@@ -15,9 +16,14 @@ transactionRouter.post(
   TransactionController.createTransaction
 );
 transactionRouter.put(
-  "/",
+  "/:transId",
   validateToken,
   TransactionController.updateTransaction
+);
+transactionRouter.delete(
+  "/:transId",
+  validateToken,
+  TransactionController.destroyTransaction
 );
 
 export default transactionRouter;

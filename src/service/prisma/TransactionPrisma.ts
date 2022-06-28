@@ -7,6 +7,26 @@ export default class TransactionPrisma implements TransactionRepository {
   constructor() {
     this.#prisma = prisma;
   }
+  async updateTransaction(
+    transId: number,
+    description: string,
+    type: "INCOME" | "OUTCOME",
+    date: Date,
+    value: number
+  ): Promise<Transactions> {
+    const transactionUpdated = await this.#prisma.transactions.update({
+      where: {
+        id: transId,
+      },
+      data: {
+        description,
+        value,
+        type,
+        date,
+      },
+    });
+    return transactionUpdated!;
+  }
   async createTransaction(
     description: string,
     type: "OUTCOME" | "INCOME",
@@ -33,14 +53,34 @@ export default class TransactionPrisma implements TransactionRepository {
           userId,
         },
       },
-      include: {
-        account: {
-          include: {
-            transactions: true
-          }
-        }
-      },
+      // include: {
+      //   account: {
+      //     include: {
+      //       transactions: true,
+      //     },
+      //   },
+      // },
     });
     return transactions;
   }
+
+  async destroyTransaction(transId: number): Promise<Transactions> {
+    const transaction = await this.#prisma.transactions.delete({
+      where: {
+        id: transId,
+      },
+    });
+    return transaction;
+  }
+
+  // TODO Validar se tem transação antes de fazer as operações no banco
+  // async hasTransaction(transId: number) {
+  //   const transaction = await this.#prisma.transactions.findUnique({
+  //     where: {
+  //       id: transId,
+  //     },
+  //   });
+
+  //   return transaction ? true : false;
+  // }
 }

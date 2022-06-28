@@ -8,9 +8,9 @@ import {
 } from "../../src/models";
 const request = supertest(app);
 
-async function createUserAuth() {
+async function createUserAuth(name: string) {
   const user = await getUserService().create({
-    name: "Marlliton Default User",
+    name,
     email: `${Date.now()}@teste.com`,
     password: "123",
   } as User);
@@ -27,10 +27,7 @@ async function createUserAuth() {
 }
 
 async function createAccount(name: string, userId: number) {
-  const response = await getAccountService().create({
-    name,
-    userId,
-  } as Account);
+  const response = await getAccountService().create(name, userId, 10);
 
   return response;
 }
@@ -41,15 +38,17 @@ let account1: Account;
 let account2: Account;
 
 beforeAll(async () => {
-  user1 = await createUserAuth();
-  user2 = await createUserAuth();
+  user1 = await createUserAuth("Usuário 01");
+  user2 = await createUserAuth("Usuário 02");
   account1 = await createAccount("Conta user 1", user1.user.id);
   account2 = await createAccount("Conta user 2", user2.user.id);
 });
 
 describe("Deve testar as rotas de transações", () => {
-  it("Deve criar uma transaction", async () => {
-    const { user, token } = await createUserAuth();
+  it.skip("Deve criar uma transaction", async () => {
+    const { user, token } = await createUserAuth(
+      "Usuário da primeira transação"
+    );
     const account = await createAccount("Rota de criação de conta", user.id);
 
     const response = await request
@@ -61,15 +60,58 @@ describe("Deve testar as rotas de transações", () => {
         description: "Entrada de Dinheiro",
         type: "INCOME",
         date: new Date(),
-        value: 235.99,
+        value: 230,
         accountId: account.id,
       });
 
-    console.log(response.body);
     expect(response.statusCode).toEqual(200);
   });
+  it("Não deve criar uma transaction com valor negativo", async () => {
+    const { user, token } = await createUserAuth(
+      "Usuário da primeira transação"
+    );
+    const account = await createAccount("Rota de criação de conta", user.id);
 
-  it("Deve listar as transações do usuário logado", async () => {
+    const response = await request
+      .post("/transaction")
+      .set({
+        authorization: `Bearer ${token}`,
+      })
+      .send({
+        description: "Entrada de Dinheiro",
+        type: "INCOME",
+        date: new Date(),
+        value: -100,
+        accountId: account.id,
+      });
+
+    expect(response.statusCode).toEqual(200);
+    expect(response.body.value).toBe("100");
+  });
+  it.skip("Não deve criar uma transaction com valor positivo", async () => {
+    const { user, token } = await createUserAuth(
+      "Usuário da primeira transação"
+    );
+    const account = await createAccount("Rota de criação de conta", user.id);
+
+    const response = await request
+      .post("/transaction")
+      .set({
+        authorization: `Bearer ${token}`,
+      })
+      .send({
+        description: "Entrada de Dinheiro",
+        type: "OUTCOME",
+        date: new Date(),
+        value: 100,
+        accountId: account.id,
+      });
+
+    expect(response.statusCode).toEqual(200);
+    expect(response.body.value).toBe("-100");
+  });
+
+  it.skip("Deve listar as transações do usuário logado", async () => {
     await getTransactionService().createTransaction(
       "Transação usuário 01",
       "INCOME",
@@ -77,7 +119,7 @@ describe("Deve testar as rotas de transações", () => {
       100,
       account1.id
     );
-    const transaction = await getTransactionService().createTransaction(
+    await getTransactionService().createTransaction(
       "Transação usuário 02",
       "OUTCOME",
       new Date(),
@@ -100,9 +142,17 @@ describe("Deve testar as rotas de transações", () => {
     expect(response.body.length).toBeGreaterThan(0);
   });
 
-  it("Deve alterar uma transação", async () => {
+  it.skip("Deve alterar uma transação", async () => {
+    const transaction = await getTransactionService().createTransaction(
+      "Transação que deve ser atualizada",
+      "OUTCOME",
+      new Date(),
+      300,
+      account2.id
+    );
+
     const response = await request
-      .put(`/transaction/${user2.user.id}`)
+      .put(`/transaction/${transaction.id}`)
       .set({
         authorization: `Bearer ${user2.token}`,
       })
@@ -113,6 +163,47 @@ describe("Deve testar as rotas de transações", () => {
         value: 235.99,
         accountId: account2.id,
       });
+
+    expect(response.statusCode).toEqual(200);
+    expect(response.body).toHaveProperty(
+      "description",
+      "Entrada de Dinheiro Atualizada"
+    );
+  });
+
+  it.skip("Deve excluir uma transação", async () => {
+    const transaction = await getTransactionService().createTransaction(
+      "Transação que deve ser atualizada",
+      "OUTCOME",
+      new Date(),
+      300,
+      account2.id
+    );
+
+    const response = await request
+      .delete(`/transaction/${transaction.id}`)
+      .set({
+        authorization: `Bearer ${user2.token}`,
+      });
     expect(response.statusCode).toEqual(200);
   });
+
+  // TODO fazer teste de validação de acesso a recursos do banco.
+
+  // it.skip("Não deve excluir uma transação de outro usuário", async () => {
+  //   const transaction = await getTransactionService().createTransaction(
+  //     "Transação que deve ser atualizada",
+  //     "OUTCOME",
+  //     new Date(),
+  //     300,
+  //     account2.id
+  //   );
+  //   const userNotPermission = await createUserAuth("Sem Permissão");
+  //   const response = await request
+  //     .delete(`/transaction/${transaction.id}`)
+  //     .set({
+  //       authorization: `Bearer ${userNotPermission.token}`,
+  //     });
+  //   expect(response.statusCode).toEqual(200);
+  // });
 });

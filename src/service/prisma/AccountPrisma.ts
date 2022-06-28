@@ -8,6 +8,22 @@ export default class AccountPrisma implements AccountRepository {
     this.#prisma = prisma;
   }
 
+  async create(
+    name: string,
+    userId: number,
+    balance: number
+  ): Promise<Account> {
+    const account = await this.#prisma.account.create({
+      data: {
+        balance,
+        name,
+        userId,
+      },
+    });
+
+    return account;
+  }
+
   async findAll(): Promise<Account[]> {
     const account = await this.#prisma.account.findMany();
     return account;
@@ -22,17 +38,31 @@ export default class AccountPrisma implements AccountRepository {
     return account!;
   }
 
-  async create({ name, userId }: Account): Promise<Account> {
-    const account = await this.#prisma.account.create({
-      data: {
-        name,
-        userId,
+  async getBalance(accountId: number): Promise<any> {
+    const balance = await this.#prisma.account.findUnique({
+      where: {
+        id: accountId,
+      },
+      select: {
+        balance: true,
       },
     });
-    return account;
+
+    return balance;
   }
 
-  async update({ name, userId }: Account): Promise<Account> {
+  async updateBalance(accountId: number, balance: number): Promise<void> {
+    await this.#prisma.account.update({
+      where: {
+        id: accountId,
+      },
+      data: {
+        balance,
+      },
+    });
+  }
+
+  async update(name: string, userId: number): Promise<Account> {
     const updatedAccount = await this.#prisma.account.update({
       where: {
         userId,

@@ -22,7 +22,7 @@
     "body": [
       "it('$1', async () => {",
       "\t$0",
-			"\tconst response = await request.${2:get}(`/transaction/`).set({",
+			"\tconst response = await request.${2:get}(`/$3/`).set({",
 			"\tauthorization: `Bearer ${}`,",
 			"});",
       "\texpect(response.statusCode).toEqual(200);",

@@ -10,11 +10,11 @@ export interface TransactionRepository {
   ) => Promise<Transactions>;
   findTransactions: (userId: number) => Promise<Transactions[]>;
   updateTransaction: (
-    userId: number,
+    transId: number,
     description: string,
     type: "OUTCOME" | "INCOME",
     date: Date,
-    value: number,
-    accountId: number
+    value: number
   ) => Promise<Transactions>;
+  destroyTransaction: (transId: number) => Promise<Transactions>;
 }

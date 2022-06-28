@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import { getAccountService } from "../models";
 
 class AccountController {
-  
   findOne = async (req: Request, res: Response) => {
     const { userId } = req.params;
 
@@ -17,16 +16,13 @@ class AccountController {
   };
 
   createAccount = async (req: Request, res: Response) => {
-    const { name, userId } = req.body;
-    
+    const { name, userId, balance } = req.body;
+
     if (!name || !userId)
       return res.status(403).json({ error: "Fill in all fields" });
 
     try {
-      const account = await getAccountService().create({
-        name,
-        userId
-      } as Account);
+      const account = await getAccountService().create(name, +userId, +balance);
 
       res.status(201).json(account);
     } catch (error) {
@@ -37,17 +33,14 @@ class AccountController {
   update = async (req: Request, res: Response) => {
     const { name, userId } = req.body;
 
-    if (!name|| !userId)
+    if (!name || !userId)
       return res.status(403).json({ error: "Fill in all fields" });
 
     try {
       const hasAccount = await getAccountService().findOne(+userId);
       if (!hasAccount) return res.status(204).send();
 
-      const account = await getAccountService().update({
-        name,
-        userId,
-      } as Account);
+      const account = await getAccountService().update(name, userId);
 
       return res.status(200).json(account);
     } catch (error) {

@@ -57,7 +57,6 @@ describe("Deve testar rotas de usuário", () => {
       authorization: `Bearer ${token}`,
     });
 
-    console.log(response.body)
     expect(response.statusCode).toEqual(200);
   });
 });
